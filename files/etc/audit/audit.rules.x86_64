@@ -1,0 +1,55 @@
+# auditctl rules that are loaded whenever the audit daemon is
+# started via the initscripts.
+
+# First rule - delete all
+-D
+
+# Increase the buffers to survive stress events.
+# Make this bigger for busy systems
+-b 32767
+
+### These should keep puppet noise out, per toai
+### put at the start to filter cruft
+-a never,exclude -F msgtype=USER_END
+-a never,exclude -F msgtype=PATH
+-a never,exclude -F msgtype=USER_ACCT
+-a never,exclude -F msgtype=CRED_ACQ
+-a never,exclude -F msgtype=CRED_DISP
+-a never,exclude -F msgtype=CWD
+-a never,exclude -F msgtype=PROCTITLE
+
+# The following rules create log entries to be written whenever the
+# rmdir, unlink, execve system calls exit. This will record file
+# deletion and command line executions.
+-a exit,always -F arch=b32 -S execve -k EXEC
+-a exit,always -F arch=b64 -S execve -k EXEC
+# Uncomment if you want BIND and CONNECT events to be logged
+#-a exit,always -F arch=b64 -S bind       -k BIND       -F exit!=-2
+#-a exit,always -F arch=b64 -S connect    -k CONNECT    -F exit!=-2
+-a exit,always -F arch=b32 -S socketcall -k SOCKETCALL -F exit!=-2
+-a exit,always -F arch=b32 -S link -S unlink -k FILEWRITE
+-a exit,always -F arch=b64 -S link -S unlink -k FILEWRITE
+-a exit,always -F arch=b32 -S mkdir -S rmdir -k FILEWRITE
+-a exit,always -F arch=b64 -S mkdir -S rmdir -k FILEWRITE
+
+# The following rules create log entries when the critical system
+# files are created or deleted.
+-w /bin -p wa -k binfiles
+-w /etc/audisp -p wa -k sysfiles
+-w /etc/audit -p wa -k sysfiles
+-w /etc/krb5.conf -p wa -k sysfiles
+-w /etc/krb5.keytab -p wa -k sysfiles
+-w /etc/pam.d -p wa -k sysfiles
+-w /etc/passwd -p wa -k sysfiles
+-w /etc/remctl/acl -p wa -k sysfiles
+-w /etc/shadow -p wa -k sysfiles
+-w /etc/ssh -p wa -k sysfiles
+-w /sbin -p wa -k binfiles
+-w /usr/bin -p wa -k binfiles
+-w /usr/sbin -p wa -k binfiles
+
+##### comment out while testing #####
+# Disable adding any additional rules - note that adding *new* rules
+# will require a reboot
+#-e 2
+

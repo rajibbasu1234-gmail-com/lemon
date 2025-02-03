@@ -1,0 +1,5 @@
+# Ignore known hosts issue when pushing to code.stanford.edu as that
+# server can change its ssh key at any time due to rebuilds.
+Host code.stanford.edu
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null

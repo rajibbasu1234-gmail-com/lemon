@@ -1,0 +1,21 @@
+<VirtualHost *:80>
+  # This conf is for clients that do NOT support SNI. In particular, it
+  # appears that the F5 health-check monitors do not support SNI.
+  # A non-SNI supporting client will use the first VirtualHost (this
+  # one).
+  ServerName badbadbad2208273.stanford.edu
+  DocumentRoot /var/www/html
+</VirtualHost>
+
+<VirtualHost *:443>
+  # See above note in "<VirtualHost *:80>".
+  ServerName badbadbad2208273.stanford.edu
+
+  SSLEngine On
+  SSLCertificateFile    /etc/ssl/certs/<%= @catch_all_cert %>.pem
+  SSLCertificateKeyFile /etc/ssl/private/<%= @catch_all_cert %>.key
+  SSLCACertificateFile  /etc/ssl/certs/incommon2024-usertrust2038-bundle.pem
+
+  DocumentRoot /var/www/html
+</VirtualHost>
+

@@ -1,0 +1,2 @@
+# Export the combined SP metadata once every 10 minutes
+*/10 * * * * root cd /usr/share/spdb; bin/rails runner lib/export_metadata.rb

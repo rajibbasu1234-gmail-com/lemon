@@ -1,0 +1,56 @@
+<%-
+  if (@env == 'prod') then
+    server_name = 'samlvalidate'
+  else
+    server_name = "samlvalidate-#{@env}"
+  end
+-%>
+<VirtualHost *:80>
+  ServerAdmin adamhl@stanford.edu
+  ServerName  <%= server_name %>.stanford.edu
+  ServerAlias <%= server_name %>
+
+  # We want the server to be able to make requests to itself
+  # without going through the load-balancer, hence, the
+  # next directive. Note that if more than one Apache
+  # configuration has a ServerAlias of "localhost" this
+  # cause problems.
+  ServerAlias localhost
+
+  DocumentRoot /srv/www
+
+  ScriptAlias "/saml-validate/" "/srv/www/saml-validate/"
+  ScriptAlias "/samlvalidate/"  "/srv/www/saml-validate/"
+  ScriptAlias "/validatesaml/"  "/srv/www/saml-validate/"
+  ScriptAlias "/validate-saml/" "/srv/www/saml-validate/"
+  <Directory "/srv/www/saml-validate/">
+    <RequireAll>
+      Require all granted
+    </RequireAll>
+  </Directory>
+
+</VirtualHost>
+
+<VirtualHost *:443>
+  ServerAdmin adamhl@stanford.edu
+  ServerName  <%= server_name %>.stanford.edu
+  ServerAlias <%= server_name %>
+
+  DocumentRoot /srv/www
+
+  SSLEngine On
+  SSLCertificateFile    /etc/ssl/certs/<%= server_name %>.pem
+  SSLCertificateKeyFile /etc/ssl/private/<%= server_name %>.key
+  SSLCACertificateFile  /etc/ssl/certs/incommon2024-usertrust2038-bundle.pem
+
+  ScriptAlias "/saml-validate/" "/srv/www/saml-validate/"
+  ScriptAlias "/samlvalidate/"  "/srv/www/saml-validate/"
+  ScriptAlias "/validatesaml/"  "/srv/www/saml-validate/"
+  ScriptAlias "/validate-saml/" "/srv/www/saml-validate/"
+  <Directory "/srv/www/saml-validate/">
+    <RequireAll>
+      Require all granted
+    </RequireAll>
+  </Directory>
+
+</VirtualHost>
